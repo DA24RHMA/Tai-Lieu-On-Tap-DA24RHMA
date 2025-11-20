@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sảnh Chờ</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/theme_galaxy.css" />
+    <link rel="stylesheet" href="styles/theme_cat.css" />
+    <style>
+      #main-app {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        z-index: 10;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 1s; /* Ẩn chờ Intro */
+      }
+      .subject-grid {
+        display: flex;
+        justify-content: center;
+        gap: 50px;
+        flex-wrap: wrap;
+        width: 100%;
+        margin-top: 30px;
+      }
+      .subject-card {
+        width: 260px;
+        height: 340px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border-radius: 30px !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .subject-card:hover {
+        transform: translateY(-15px) scale(1.05);
+      }
+      .card-icon {
+        font-size: 5.5rem;
+        margin-bottom: 25px;
+        filter: drop-shadow(0 5px 15px rgba(255, 255, 255, 0.2));
+      }
+      .card-title {
+        font-size: 1.8rem;
+        font-weight: bold;
+        z-index: 2;
+      }
+      .card-status {
+        font-size: 1rem;
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin-top: 15px;
+      }
+
+      /* Bỏ cursor move ở header vì không cho kéo nữa */
+      .profile-header {
+        cursor: default;
+      }
+
+      /* Intro Layer & Stage */
+      #intro-layer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.5s;
+        cursor: pointer;
+      }
+      .intro-stage {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden; /* Tránh thanh cuộn khi tên lửa bay ra ngoài */
+      }
+      .skip-hint {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.9rem;
+        animation: blink 1s infinite;
+        pointer-events: none;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0.3;
+        }
+      }
+      /* Fix Z-index cho Avatar để luôn nổi trên cùng */
+      .avatar-btn {
+        z-index: 9999 !important;
+        touch-action: none; /* Chặn scroll trên mobile khi chạm vào nút */
+      }
+    </style>
+  </head>
+  <body data-theme="galaxy">
+    <div
+      class="galaxy-intro-element"
+      style="position: fixed; width: 100%; height: 100%; z-index: -1"
+    >
+      <div class="static-stars"></div>
+    </div>
+    <div class="cat-bg-pattern cat-intro-element"></div>
+
+    <!-- AVATAR BUTTON -->
+    <div class="avatar-btn" id="floating-avatar">
+      <span id="user-avt">👨‍🚀</span>
+      <div class="avatar-badge" id="lvl-badge">1</div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div class="modal-overlay" id="profile-modal">
+      <div class="profile-modal-content" id="profile-content">
+        <!-- Header with Settings Button -->
+        <!-- Đã bỏ id profile-header-drag vì không cần kéo nữa -->
+        <div class="profile-header">
+          <div class="profile-user">
+            <div class="profile-avt-large" id="modal-avt">👨‍🚀</div>
+            <div>
+              <div style="font-weight: bold; font-size: 1.5rem">Học Viên</div>
+              <!-- Đã thêm lại các chỉ số vào đây -->
+              <div
+                class="profile-stats"
+                style="font-size: 0.9rem; margin-top: 5px"
+              >
+                <span
+                  id="profile-lvl-txt"
+                  style="
+                    background: #666;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    font-size: 0.8rem;
+                    margin-right: 5px;
+                  "
+                  >LV.1</span
+                >
+                <i
+                  class="fas fa-fire"
+                  style="color: orange; margin-left: 5px"
+                ></i>
+                <b id="p-streak">0</b>
+                <i
+                  class="fas fa-coins"
+                  style="color: gold; margin-left: 10px"
+                ></i>
+                <b id="p-coins">0</b>
+                <i
+                  class="fas fa-seedling"
+                  style="color: #4caf50; margin-left: 10px"
+                ></i>
+                <b id="p-seeds">0</b>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <button
+              class="btn-secondary"
+              onclick="toggleSettingsView()"
+              title="Cài đặt"
+            >
+              <i class="fas fa-cog"></i>
+            </button>
+            <button class="btn-secondary" onclick="closeProfile()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- VIEW 1: STATS -->
+        <div class="profile-body profile-view" id="view-stats">
+          <div class="dash-widget">
+            <div class="dw-title">
+              <i class="fas fa-scroll"></i> Nhiệm Vụ Hôm Nay
+            </div>
+            <div id="quest-list"></div>
+            <div style="margin-top: 10px; font-size: 0.9rem; color: #aaa">
+              Đã học hôm nay: <b id="today-count" style="color: #fff">0</b> thẻ
+            </div>
+          </div>
+          <div class="dash-widget">
+            <div class="dw-title">
+              <i class="fas fa-clock"></i> Pomodoro (25p = 1 Mầm)
+            </div>
+            <div
+              class="pomo-display"
+              id="pomo-timer"
+              style="
+                font-size: 3rem;
+                text-align: center;
+                font-weight: bold;
+                margin: 10px 0;
+              "
+            >
+              25:00
+            </div>
+            <div class="ios-picker-wrapper" id="pomo-picker-ui">
+              <div class="picker-col" id="pomo-min-scroll">
+                <div class="picker-pad"></div>
+              </div>
+              <span style="font-size: 1.5rem; font-weight: bold">:</span>
+              <div class="picker-col" id="pomo-sec-scroll">
+                <div class="picker-pad"></div>
+              </div>
+            </div>
+            <div
+              style="
+                text-align: center;
+                gap: 10px;
+                display: flex;
+                justify-content: center;
+              "
+            >
+              <button
+                class="btn-primary"
+                id="pomo-toggle"
+                onclick="togglePomo()"
+              >
+                Bắt đầu
+              </button>
+              <button class="btn-secondary" onclick="resetPomo()">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+          </div>
+          <div class="game-center">
+            <div
+              class="game-card"
+              onclick="alert('Game Nuôi Pet đang phát triển!')"
+            >
+              <div class="gc-icon">🐱</div>
+              <div><b>Nuôi Pet</b></div>
+            </div>
+            <div
+              class="game-card"
+              onclick="alert('Game Trồng Rừng: ' + (window.UserDB ? window.UserDB.data.forest.seeds : 0) + ' mầm!')"
+            >
+              <div class="gc-icon">🌲</div>
+              <div><b>Trồng Rừng</b></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: SETTINGS -->
+        <div
+          class="profile-body profile-view"
+          id="view-settings"
+          style="display: none"
+        >
+          <h2 style="margin-bottom: 20px; color: var(--accent-color)">
+            Cài Đặt Hệ Thống
+          </h2>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+              padding-bottom: 20px;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            "
+          >
+            <span>Giao diện (Theme)</span>
+            <select
+              id="theme-select"
+              style="
+                padding: 10px;
+                border-radius: 10px;
+                background: #333;
+                color: #fff;
+                border: 1px solid #555;
+              "
+              onchange="changeTheme(this.value)"
+            >
+              <option value="galaxy">Galaxy (Tối)</option>
+              <option value="cat">Meow (Sáng)</option>
+            </select>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 20px;
+              padding-bottom: 20px;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            "
+          >
+            <span>Dữ liệu học tập</span>
+            <button
+              style="
+                background: #e74c3c;
+                color: #fff;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 20px;
+                cursor: pointer;
+              "
+              onclick="confirmResetData()"
+            >
+              <i class="fas fa-trash"></i> Reset Toàn Bộ
+            </button>
+          </div>
+          <p style="color: #aaa; font-size: 0.9rem; margin-top: 20px">
+            Phiên bản: 1.0.0 (Alpha) <br />
+            Reset sẽ xóa toàn bộ tiến độ, xu và cài đặt về mặc định.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTRO LAYER (Click to Skip) -->
+    <div id="intro-layer" onclick="finishIntro()">
+      <div class="intro-stage">
+        <!-- Galaxy -->
+        <div class="intro-rocket galaxy-intro-element" id="g-rocket">🚀</div>
+        <div class="galaxy-text-container galaxy-intro-element">
+          <span class="intro-char">D</span><span class="intro-char">A</span
+          ><span class="intro-char">2</span><span class="intro-char">4</span
+          ><span class="intro-char">R</span><span class="intro-char">H</span
+          ><span class="intro-char">M</span><span class="intro-char">A</span>
+        </div>
+        <div class="galaxy-subtitle galaxy-intro-element" id="g-subtitle">
+          Tài Liệu Ôn Tập
+        </div>
+        <!-- Cat -->
+        <div class="cat-intro-element yarn-ball" id="cat-yarn">🧶</div>
+        <div class="cat-intro-element cat-actor" id="cat-actor">🐈</div>
+        <div class="cat-intro-element cat-title" id="cat-title">DA24RHMA</div>
+        <div class="cat-intro-element cat-subtitle" id="cat-subtitle">
+          Tài Liệu Ôn Tập
+        </div>
+      </div>
+      <div class="skip-hint">Chạm để bỏ qua</div>
+    </div>
+
+    <div id="main-app">
+      <h1
+        class="main-title"
+        style="
+          font-size: 4rem;
+          margin-bottom: 60px;
+          text-shadow: 0 0 30px currentColor;
+        "
+      >
+        Chọn Môn Học
+      </h1>
+      <div class="subject-grid">
+        <div class="subject-card card-active" onclick="selectSubject('KST')">
+          <div class="card-icon">🦠</div>
+          <div class="card-title">Ký Sinh Trùng</div>
+          <div class="card-status">● Đang học</div>
+        </div>
+        <div class="subject-card card-disabled">
+          <div class="card-icon">🧫</div>
+          <div class="card-title">Vi Sinh</div>
+          <div class="card-status">Coming Soon</div>
+        </div>
+      </div>
+    </div>
+
+    <script src="core/database.js"></script>
+    <script>
+      const savedTheme = localStorage.getItem("app_theme") || "galaxy";
+      document.body.setAttribute("data-theme", savedTheme);
+      const POMO_STATE_KEY = "DA24RHMA_POMO_STATE";
+
+      window.onload = () => {
+        if (typeof window.UserDB === "undefined") {
+          window.UserDB = {
+            data: {
+              coins: 0,
+              streak: 0,
+              forest: { seeds: 0 },
+              quests: {
+                cardsLearnedToday: 0,
+                q30: false,
+                q50: false,
+                q100: false,
+                pomo: false,
+              },
+              pomodoro: { workTime: 1500 },
+            },
+            getStreakLevel: () => 1,
+            addCoins: () => {},
+            addSeeds: () => {},
+            completePomodoroQuest: () => {},
+            incrementCardCount: () => {},
+            save: () => {},
+          };
+        }
+
+        loadPomoState();
+        updateAvatar();
+        playIntro();
+
+        // ĐÃ BỎ GỌI makeDraggable CHO PROFILE POPUP
+
+        // Init Floating Avatar (Vẫn giữ cái này)
+        initFloatingAvatar();
+
+        initIOSPickers();
+      };
+
+      /* --- LOGIC AVATAR TRÔI NỔI (MESSENGER STYLE) --- */
+      function initFloatingAvatar() {
+        const avatar = document.getElementById("floating-avatar");
+        let isDragging = false;
+        let hasMoved = false;
+        let startX, startY, initialLeft, initialTop;
+
+        // Hỗ trợ cả Chuột (PC) và Cảm ứng (Mobile)
+        avatar.addEventListener("mousedown", dragStart);
+        avatar.addEventListener("touchstart", dragStart, { passive: false });
+
+        function dragStart(e) {
+          if (e.type === "touchstart") {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+          } else {
+            startX = e.clientX;
+            startY = e.clientY;
+          }
+
+          const rect = avatar.getBoundingClientRect();
+          initialLeft = rect.left;
+          initialTop = rect.top;
+
+          hasMoved = false;
+          isDragging = true;
+
+          if (e.type === "touchstart") {
+            document.addEventListener("touchmove", dragMove, {
+              passive: false,
+            });
+            document.addEventListener("touchend", dragEnd);
+          } else {
+            document.addEventListener("mousemove", dragMove);
+            document.addEventListener("mouseup", dragEnd);
+          }
+        }
+
+        function dragMove(e) {
+          if (!isDragging) return;
+
+          let clientX, clientY;
+          if (e.type === "touchmove") {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+            e.preventDefault();
+          } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+          }
+
+          const dx = clientX - startX;
+          const dy = clientY - startY;
+
+          if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            hasMoved = true;
+          }
+
+          avatar.style.left = `${initialLeft + dx}px`;
+          avatar.style.top = `${initialTop + dy}px`;
+          avatar.style.right = "auto";
+          avatar.style.bottom = "auto";
+        }
+
+        function dragEnd(e) {
+          isDragging = false;
+
+          if (e.type === "touchend") {
+            document.removeEventListener("touchmove", dragMove);
+            document.removeEventListener("touchend", dragEnd);
+          } else {
+            document.removeEventListener("mousemove", dragMove);
+            document.removeEventListener("mouseup", dragEnd);
+          }
+
+          if (!hasMoved) {
+            openProfile();
+          }
+        }
+      }
+
+      function updateAvatar() {
+        const icon = savedTheme === "cat" ? "🐱" : "👨‍🚀";
+        document.getElementById("user-avt").innerText = icon;
+        document.getElementById("modal-avt").innerText = icon;
+        if (window.UserDB)
+          document.getElementById("lvl-badge").innerText =
+            window.UserDB.getStreakLevel();
+      }
+
+      function openProfile() {
+        // Đảm bảo reset về view stats khi mở lại
+        document.getElementById("view-stats").style.display = "grid";
+        document.getElementById("view-settings").style.display = "none";
+
+        updateProfileUI();
+        document.getElementById("profile-modal").classList.add("modal-active");
+      }
+      function closeProfile() {
+        document
+          .getElementById("profile-modal")
+          .classList.remove("modal-active");
+      }
+
+      function updateProfileUI() {
+        if (!window.UserDB) return;
+        const db = window.UserDB.data;
+
+        // Helper an toàn để gán text
+        const setTxt = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = val;
+        };
+
+        setTxt("p-streak", db.streak);
+        setTxt("p-coins", db.coins);
+        setTxt("p-seeds", db.forest.seeds);
+        setTxt("today-count", db.quests.cardsLearnedToday);
+        setTxt("profile-lvl-txt", "LV." + window.UserDB.getStreakLevel());
+
+        const qList = document.getElementById("quest-list");
+        if (qList) {
+          qList.innerHTML = "";
+          const quests = [
+            { t: "Học 30 thẻ", done: db.quests.q30 },
+            { t: "Học 50 thẻ", done: db.quests.q50 },
+            { t: "Học 100 thẻ", done: db.quests.q100 },
+            { t: "Hoàn thành 1 Pomodoro", done: db.quests.pomo },
+          ];
+          quests.forEach((q) => {
+            qList.innerHTML += `<div class="quest-item ${
+              q.done ? "quest-done" : ""
+            }"><span>${q.t}</span><span>${
+              q.done ? "✅" : "+1 Xu"
+            }</span></div>`;
+          });
+        }
+
+        updatePomoDisplay();
+        updatePickerPosition();
+
+        const btn = document.getElementById("pomo-toggle");
+        if (isRunning) {
+          btn.innerText = "Tạm dừng";
+          document.getElementById("pomo-picker-ui").style.pointerEvents =
+            "none";
+          document.getElementById("pomo-picker-ui").style.opacity = "0.5";
+        } else {
+          if (timeLeft < db.pomodoro.workTime && timeLeft > 0) {
+            btn.innerText = "Tiếp tục";
+          } else {
+            btn.innerText = "Bắt đầu";
+          }
+          document.getElementById("pomo-picker-ui").style.pointerEvents =
+            "auto";
+          document.getElementById("pomo-picker-ui").style.opacity = "1";
+        }
+      }
+
+      function selectSubject(code) {
+        if (code === "KST") window.location.href = "study.html";
+      }
+
+      /* --- INTRO --- */
+      let introTimeouts = [];
+      function playIntro() {
+        const layer = document.getElementById("intro-layer");
+        layer.style.display = "flex";
+        layer.style.opacity = "1";
+        document.getElementById("main-app").style.opacity = 0;
+
+        if (savedTheme === "galaxy") playGalaxyIntro();
+        else playCatIntro();
+      }
+
+      function playGalaxyIntro() {
+        const rocket = document.getElementById("g-rocket");
+        const chars = document.querySelectorAll(
+          ".galaxy-text-container .intro-char"
+        );
+        const sub = document.getElementById("g-subtitle");
+        rocket.classList.add("animate");
+        chars.forEach((c, i) => {
+          introTimeouts.push(
+            setTimeout(() => c.classList.add("animate"), 500 + i * 100)
+          );
+        });
+        introTimeouts.push(
+          setTimeout(() => sub.classList.add("animate"), 2000)
+        );
+        introTimeouts.push(setTimeout(finishIntro, 4000));
+      }
+      function playCatIntro() {
+        const yarn = document.getElementById("cat-yarn");
+        const cat = document.getElementById("cat-actor");
+        const title = document.getElementById("cat-title");
+        const sub = document.getElementById("cat-subtitle");
+        yarn.classList.add("roll-in");
+        introTimeouts.push(setTimeout(() => cat.classList.add("chase"), 500));
+        introTimeouts.push(
+          setTimeout(() => {
+            yarn.classList.add("expand");
+            title.classList.add("reveal");
+          }, 2000)
+        );
+        introTimeouts.push(setTimeout(() => cat.classList.add("sit"), 2000));
+        introTimeouts.push(setTimeout(() => sub.classList.add("reveal"), 2500));
+        introTimeouts.push(setTimeout(finishIntro, 4500));
+      }
+      function finishIntro() {
+        introTimeouts.forEach(clearTimeout);
+        document.getElementById("intro-layer").style.opacity = 0;
+        setTimeout(() => {
+          document.getElementById("intro-layer").style.display = "none";
+          document.getElementById("main-app").style.opacity = 1;
+        }, 500);
+      }
+
+      /* --- POMODORO LOGIC --- */
+      let pomoTimer;
+      let isRunning = false;
+      let timeLeft = 25 * 60;
+
+      function loadPomoState() {
+        const stateJSON = localStorage.getItem(POMO_STATE_KEY);
+        if (stateJSON) {
+          const state = JSON.parse(stateJSON);
+          if (state.isRunning) {
+            const now = Date.now();
+            const secondsRemaining = Math.round((state.endTime - now) / 1000);
+            if (secondsRemaining > 0) {
+              timeLeft = secondsRemaining;
+              isRunning = true;
+              startTimerInterval();
+            } else {
+              timeLeft = 0;
+              isRunning = false;
+              localStorage.removeItem(POMO_STATE_KEY);
+            }
+          } else {
+            timeLeft = state.remaining;
+            isRunning = false;
+          }
+        } else {
+          if (window.UserDB) timeLeft = window.UserDB.data.pomodoro.workTime;
+        }
+      }
+      function savePomoState(running) {
+        const state = {
+          isRunning: running,
+          endTime: running ? Date.now() + timeLeft * 1000 : null,
+          remaining: timeLeft,
+        };
+        localStorage.setItem(POMO_STATE_KEY, JSON.stringify(state));
+      }
+      function startTimerInterval() {
+        if (pomoTimer) clearInterval(pomoTimer);
+        pomoTimer = setInterval(() => {
+          if (timeLeft > 0) {
+            timeLeft--;
+            updatePomoDisplay();
+          } else {
+            finishPomo();
+          }
+        }, 1000);
+      }
+      function initIOSPickers() {
+        generatePickerItems("pomo-min-scroll", 60, 25);
+        generatePickerItems("pomo-sec-scroll", 60, 0);
+        const elMin = document.getElementById("pomo-min-scroll");
+        const elSec = document.getElementById("pomo-sec-scroll");
+        if (elMin) elMin.addEventListener("scroll", updateTimeFromPicker);
+        if (elSec) elSec.addEventListener("scroll", updateTimeFromPicker);
+      }
+      function generatePickerItems(id, count, selected) {
+        const container = document.getElementById(id);
+        if (!container) return;
+        while (container.children.length > 2)
+          container.removeChild(container.children[1]);
+        for (let i = 0; i < count; i++) {
+          const div = document.createElement("div");
+          div.className = "picker-item";
+          div.innerText = i.toString().padStart(2, "0");
+          container.insertBefore(div, container.lastElementChild);
+        }
+        container.scrollTop = selected * 40;
+      }
+      function updatePickerPosition() {
+        const min = Math.floor(timeLeft / 60);
+        const sec = timeLeft % 60;
+        const elMin = document.getElementById("pomo-min-scroll");
+        const elSec = document.getElementById("pomo-sec-scroll");
+        if (elMin) elMin.scrollTop = min * 40;
+        if (elSec) elSec.scrollTop = sec * 40;
+      }
+      function updateTimeFromPicker() {
+        if (isRunning) return;
+        const min = Math.round(
+          document.getElementById("pomo-min-scroll").scrollTop / 40
+        );
+        const sec = Math.round(
+          document.getElementById("pomo-sec-scroll").scrollTop / 40
+        );
+        timeLeft = min * 60 + sec;
+        if (window.UserDB) {
+          window.UserDB.data.pomodoro.workTime = timeLeft;
+          window.UserDB.save();
+        }
+        localStorage.removeItem(POMO_STATE_KEY);
+        updatePomoDisplay();
+        document.getElementById("pomo-toggle").innerText = "Bắt đầu";
+      }
+      function togglePomo() {
+        if (isRunning) {
+          clearInterval(pomoTimer);
+          isRunning = false;
+          savePomoState(false);
+          document.getElementById("pomo-toggle").innerText = "Tiếp tục";
+          document.getElementById("pomo-picker-ui").style.pointerEvents =
+            "auto";
+          document.getElementById("pomo-picker-ui").style.opacity = "1";
+          updatePickerPosition();
+        } else {
+          if (timeLeft <= 0) return alert("Hãy chọn thời gian!");
+          isRunning = true;
+          savePomoState(true);
+          document.getElementById("pomo-toggle").innerText = "Tạm dừng";
+          document.getElementById("pomo-picker-ui").style.pointerEvents =
+            "none";
+          document.getElementById("pomo-picker-ui").style.opacity = "0.5";
+          startTimerInterval();
+        }
+      }
+      function finishPomo() {
+        clearInterval(pomoTimer);
+        isRunning = false;
+        localStorage.removeItem(POMO_STATE_KEY);
+        alert("Hoàn thành! Nhận được 1 mầm cây 🌱");
+        if (window.UserDB) {
+          const workTime = window.UserDB.data.pomodoro.workTime;
+          if (workTime >= 25 * 60) {
+            window.UserDB.addSeeds(Math.floor(workTime / (25 * 60)));
+            window.UserDB.completePomodoroQuest();
+          }
+        }
+        resetPomo();
+        updateProfileUI();
+      }
+      function resetPomo() {
+        clearInterval(pomoTimer);
+        isRunning = false;
+        localStorage.removeItem(POMO_STATE_KEY);
+        if (window.UserDB) timeLeft = window.UserDB.data.pomodoro.workTime;
+        document.getElementById("pomo-toggle").innerText = "Bắt đầu";
+        document.getElementById("pomo-picker-ui").style.pointerEvents = "auto";
+        document.getElementById("pomo-picker-ui").style.opacity = "1";
+        updatePomoDisplay();
+        updatePickerPosition();
+      }
+      function updatePomoDisplay() {
+        const el = document.getElementById("pomo-timer");
+        if (!el) return;
+        const m = Math.floor(timeLeft / 60)
+          .toString()
+          .padStart(2, "0");
+        const s = (timeLeft % 60).toString().padStart(2, "0");
+        el.innerText = `${m}:${s}`;
+      }
+
+      /* --- SETTINGS --- */
+      function toggleSettingsView() {
+        const stats = document.getElementById("view-stats");
+        const settings = document.getElementById("view-settings");
+        if (stats.style.display === "none") {
+          stats.style.display = "grid";
+          settings.style.display = "none";
+        } else {
+          stats.style.display = "none";
+          settings.style.display = "block";
+        }
+        if (document.getElementById("theme-select"))
+          document.getElementById("theme-select").value =
+            localStorage.getItem("app_theme") || "galaxy";
+      }
+      function changeTheme(t) {
+        document.body.setAttribute("data-theme", t);
+        localStorage.setItem("app_theme", t);
+        if (window.UserDB) window.UserDB.setTheme(t);
+        if (t === "galaxy") location.reload();
+      }
+      function confirmResetData() {
+        if (confirm("CẢNH BÁO: Xóa toàn bộ dữ liệu?")) {
+          if (window.UserDB) window.UserDB.resetAllData();
+        }
+      }
+
+      /* --- DRAG (CHỈ GIỮ CHO EDIT MODAL, BỎ CHO PROFILE) --- */
+      function makeDraggable(elmnt, handle) {
+        if (!elmnt || !handle) return;
+        let pos1 = 0,
+          pos2 = 0,
+          pos3 = 0,
+          pos4 = 0;
+        handle.onmousedown = dragMouseDown;
+        function dragMouseDown(e) {
+          e = e || window.event;
+          e.preventDefault();
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          const rect = elmnt.getBoundingClientRect();
+          elmnt.style.position = "fixed";
+          elmnt.style.margin = "0";
+          elmnt.style.left = rect.left + "px";
+          elmnt.style.top = rect.top + "px";
+          document.onmouseup = closeDragElement;
+          document.onmousemove = elementDrag;
+        }
+        function elementDrag(e) {
+          e = e || window.event;
+          e.preventDefault();
+          pos1 = pos3 - e.clientX;
+          pos2 = pos4 - e.clientY;
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+          elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+        }
+        function closeDragElement() {
+          document.onmouseup = null;
+          document.onmousemove = null;
+        }
+      }
+    </script>
+  </body>
+</html>

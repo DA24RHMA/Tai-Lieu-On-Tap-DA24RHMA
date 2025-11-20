@@ -1,0 +1,196 @@
+/* --- THEME GALAXY (Fix Intro Alignment) --- */
+body[data-theme="galaxy"] {
+  background: radial-gradient(circle at center, #1b1b3a 0%, #050510 100%);
+  --accent-color: #00d2ff;
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --card-border: rgba(255, 255, 255, 0.15);
+}
+
+body[data-theme="galaxy"] .modal-content {
+  border-color: var(--accent-color);
+  background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+}
+body[data-theme="galaxy"] .modal-title {
+  color: var(--accent-color);
+}
+body[data-theme="galaxy"] .btn-primary {
+  background: var(--accent-color);
+  color: #000;
+}
+body[data-theme="galaxy"] .settings-btn {
+  color: #fff;
+}
+
+body[data-theme="galaxy"] h1.main-title {
+  background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+}
+body[data-theme="galaxy"] .subject-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+body[data-theme="galaxy"] .card-active {
+  border: 1px solid rgba(0, 210, 255, 0.5);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(0, 210, 255, 0.1) 100%
+  );
+}
+body[data-theme="galaxy"] .card-active:hover {
+  box-shadow: 0 15px 30px rgba(0, 210, 255, 0.2);
+  border-color: var(--accent-color);
+}
+
+/* Visibility */
+.galaxy-intro-element {
+  display: none;
+}
+body[data-theme="galaxy"] .galaxy-intro-element {
+  display: block;
+}
+body[data-theme="galaxy"] #intro-layer {
+  background-color: #050510;
+}
+
+/* --- DYNAMIC ELEMENTS --- */
+.static-stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(
+    white,
+    rgba(255, 255, 255, 0.2) 2px,
+    transparent 3px
+  );
+  background-size: 550px 550px;
+  opacity: 0.5;
+  z-index: -1;
+}
+
+.shooting-star {
+  position: absolute;
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff);
+  transform: rotate(-45deg);
+  opacity: 0;
+  z-index: 0;
+  animation: shoot 2s linear;
+}
+@keyframes shoot {
+  0% {
+    transform: translateX(0) translateY(0) rotate(-45deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-500px) translateY(500px) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+.asteroid {
+  position: absolute;
+  color: #888;
+  z-index: 0;
+  animation: floatAsteroid linear forwards;
+}
+@keyframes floatAsteroid {
+  0% {
+    transform: translateX(-100px) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(110vw) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* --- INTRO ANIMATIONS (Fixed Center) --- */
+.intro-rocket {
+  position: absolute;
+  font-size: 3rem;
+  left: -100px;
+  top: 50%; /* Start off-screen left */
+  transform: translateY(-50%) rotate(45deg);
+  z-index: 10;
+}
+.intro-rocket.animate {
+  animation: rocketFlyPass 2.5s ease-in-out forwards;
+}
+
+.galaxy-text-container {
+  display: flex;
+  gap: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%; /* Center Point */
+  transform: translate(-50%, -50%); /* Perfect Center */
+  white-space: nowrap;
+}
+
+.intro-char {
+  font-family: "Montserrat", sans-serif;
+  font-size: 5rem;
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  transform: translateY(-50px);
+}
+.intro-char.animate {
+  animation: charDrop 0.5s forwards;
+}
+
+.galaxy-subtitle {
+  position: absolute;
+  top: 30%;
+  font-size: 1.5rem;
+  color: #00d2ff;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  opacity: 0;
+  right: -200px;
+}
+.galaxy-subtitle.animate {
+  animation: subtitleFlyIn 1.5s ease-out forwards;
+}
+
+/* Keyframes */
+@keyframes rocketFlyPass {
+  0% {
+    left: -100px;
+  }
+  100% {
+    left: 110%;
+  }
+}
+@keyframes charDrop {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    -webkit-text-stroke: 0;
+    color: #fff;
+  }
+}
+@keyframes subtitleFlyIn {
+  0% {
+    right: -200px;
+    opacity: 0;
+  }
+  100% {
+    right: 50%;
+    transform: translateX(50%);
+    opacity: 1;
+  }
+}

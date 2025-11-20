@@ -1,0 +1,313 @@
+/* --- MAIN.CSS (Final Version) --- */
+:root {
+  --text-color: #ffffff;
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+  --accent-color: #00d2ff;
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --card-radius: 25px;
+  --picker-height: 120px;
+  --item-height: 40px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  font-family: "Roboto", sans-serif;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  color: var(--text-color);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+  transition: background 0.5s ease;
+}
+
+/* --- AVATAR & BUTTONS --- */
+.avatar-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 2px solid var(--accent-color);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  transition: 0.3s;
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+}
+.avatar-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px rgba(0, 210, 255, 0.6);
+}
+.avatar-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: #ff9800;
+  color: #000;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.btn-primary {
+  padding: 12px 30px;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  background: var(--accent-color);
+  color: #000;
+  transition: 0.2s;
+}
+.btn-primary:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+.btn-secondary {
+  padding: 10px 25px;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- MODAL SYSTEM --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.modal-active {
+  display: flex;
+}
+
+.profile-modal-content,
+.edit-modal-content {
+  background: rgba(26, 26, 46, 0.98);
+  border-radius: 20px;
+  border: 1px solid var(--accent-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+  position: absolute; /* DRAGGABLE */
+  backdrop-filter: blur(20px);
+}
+
+.profile-modal-content {
+  width: 800px;
+  max-width: 95%;
+  max-height: 90vh;
+}
+.edit-modal-content {
+  width: 600px;
+  max-width: 90%;
+  border-color: #ff9800;
+}
+
+.profile-header,
+.modal-drag-header {
+  padding: 15px 20px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: move;
+  user-select: none;
+}
+
+.profile-user {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  pointer-events: none;
+}
+.profile-avt-large {
+  font-size: 3.5rem;
+}
+.profile-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* --- EDIT FORM --- */
+.form-container {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #ff9800;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+.form-group textarea {
+  width: 100%;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 12px;
+  resize: vertical;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  transition: 0.3s;
+}
+.form-group textarea:focus {
+  border-color: #ff9800;
+  outline: none;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.2);
+}
+
+/* --- IOS PICKER --- */
+.ios-picker-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: var(--picker-height);
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  margin: 10px 0;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
+}
+.ios-picker-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: var(--item-height);
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+.picker-col {
+  height: 100%;
+  width: 60px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+.picker-col::-webkit-scrollbar {
+  display: none;
+}
+.picker-item {
+  height: var(--item-height);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #aaa;
+  scroll-snap-align: center;
+}
+.picker-pad {
+  height: calc(var(--picker-height) / 2 - var(--item-height) / 2);
+}
+
+/* Widgets */
+.dash-widget {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.game-center {
+  grid-column: span 2;
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+}
+.game-card {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 15px;
+  cursor: pointer;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: 0.3s;
+}
+.game-card:hover {
+  border-color: var(--accent-color);
+  transform: translateY(-5px);
+}
+.gc-icon {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .profile-body {
+    grid-template-columns: 1fr;
+  }
+  .game-center {
+    flex-direction: column;
+    grid-column: span 1;
+  }
+  .profile-modal-content,
+  .edit-modal-content {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+}

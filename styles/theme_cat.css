@@ -1,0 +1,202 @@
+/* --- THEME CAT (Giao diện Mèo Vàng) --- */
+body[data-theme="cat"] {
+  background: #ffc107;
+  --accent-color: #333;
+  --card-bg: rgba(255, 255, 255, 0.5);
+  --card-border: #fff;
+  color: #333;
+}
+
+/* UI Styling */
+body[data-theme="cat"] .modal-content {
+  border-color: #fff;
+  background: #fff8e1;
+  color: #333;
+}
+body[data-theme="cat"] .modal-title {
+  color: #ff6f00;
+}
+body[data-theme="cat"] .settings-btn {
+  color: #333;
+  border-color: #333;
+}
+body[data-theme="cat"] .btn-primary {
+  background: #ff6f00;
+  color: #fff;
+}
+body[data-theme="cat"] select {
+  background: #fff;
+  color: #333;
+  border: 1px solid #ccc;
+}
+body[data-theme="cat"] .author-credit {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+body[data-theme="cat"] h1.main-title {
+  background: linear-gradient(90deg, #ff6f00, #bf360c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body[data-theme="cat"] .subject-card {
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid #fff;
+}
+body[data-theme="cat"] .card-active {
+  border: 2px solid #ff6f00;
+  background: #fff;
+}
+body[data-theme="cat"] .card-active:hover {
+  box-shadow: 0 15px 30px rgba(255, 111, 0, 0.3);
+}
+body[data-theme="cat"] .card-status {
+  color: #fff;
+  background: #ff6f00;
+}
+
+/* Visibility & Background */
+.cat-intro-element {
+  display: none;
+  position: absolute;
+}
+body[data-theme="cat"] .cat-intro-element {
+  display: block;
+}
+body[data-theme="cat"] #intro-layer {
+  background-color: #ffc107;
+}
+
+.cat-bg-pattern {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.1;
+  z-index: -1;
+  background-image: radial-gradient(#000 15%, transparent 16%);
+  background-size: 60px 60px;
+}
+
+/* --- NEW INTRO ASSETS (Playful) --- */
+.yarn-ball {
+  font-size: 4rem;
+  left: -100px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+}
+.cat-actor {
+  font-size: 5rem;
+  left: -200px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+}
+.cat-title {
+  font-family: "Montserrat", sans-serif;
+  font-size: 5rem;
+  font-weight: 900;
+  color: #333;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  white-space: nowrap;
+}
+.cat-subtitle {
+  font-family: "Roboto", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  top: 55%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  white-space: nowrap;
+}
+
+/* Animations */
+.yarn-ball.roll-in {
+  animation: yarnRoll 2s ease-out forwards;
+}
+.cat-actor.chase {
+  animation: catRun 1.5s ease-out forwards;
+}
+.cat-actor.sit {
+  left: calc(50% + 180px) !important;
+  transform: translateY(-50%) scaleX(-1);
+  content: "🐈";
+  animation: catWiggle 2s infinite;
+} /* Đổi vị trí ngồi cạnh chữ */
+
+/* Bung len & Hiện chữ */
+.yarn-ball.expand {
+  animation: yarnPoof 0.5s forwards;
+}
+.cat-title.reveal {
+  animation: titlePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.cat-subtitle.reveal {
+  animation: fadeInSub 1s ease-out forwards;
+}
+
+@keyframes yarnRoll {
+  0% {
+    left: -100px;
+    transform: translateY(-50%) rotate(0deg);
+  }
+  100% {
+    left: 50%;
+    transform: translateY(-50%) rotate(720deg);
+  }
+}
+@keyframes catRun {
+  0% {
+    left: -200px;
+    transform: translateY(-50%);
+  }
+  90% {
+    left: 45%;
+    transform: translateY(-50%);
+  } /* Chạy tới gần cuộn len */
+  100% {
+    left: 45%;
+    transform: translateY(-50%);
+  }
+}
+@keyframes yarnPoof {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+@keyframes titlePop {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes fadeInSub {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes catWiggle {
+  0%,
+  100% {
+    transform: translateY(-50%) scaleX(-1) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-50%) scaleX(-1) rotate(5deg);
+  }
+}
